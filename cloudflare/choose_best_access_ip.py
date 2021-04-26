@@ -7,6 +7,10 @@ import random
 
 import timer
 
+BestPingNumbers = 5
+BestSpeedNumbers = 1
+YourHost = 'www.example.com' #should replace to yourself domain#
+
 logging.basicConfig(
     filename='update_cf_ip.log',
     level=logging.INFO,
@@ -97,19 +101,19 @@ def downloadAll(iplist):
 
 pings = pingAll(ips)
 pingResult = sorted(pings.items(), key=lambda d: d[1])
-logging.info("best ping result, %r", pingResult[:20])
+logging.info("best ping result, %r", pingResult[:BestPingNumbers])
 
-bestPing = [ x[0] for x in pingResult[:20] ]
+bestPing = [ x[0] for x in pingResult[:BestPingNumbers] ]
 downloads = downloadAll(bestPing)
 downloadResult = sorted(downloads.items(), key=lambda d: d[1])
-logging.info("best speed resutl, %r", downloadResult[:5])
-print(downloadResult[:3])
+logging.info("best speed resutl, %r", downloadResult[:BestSpeedNumbers])
+print(downloadResult[:BestSpeedNumbers])
 
 import subprocess
-st = subprocess.getstatusoutput(r'''LANG=C LC_ALL=C sudo sed -i '' '/wire.42hx.com$/d' /etc/hosts''')
+st = subprocess.getstatusoutput(r'''LANG=C LC_ALL=C sudo sed -i '' '/{}$/d' /etc/hosts'''.format(YourHost))
 logging.info("del host %r", st)
 
-resolve = [ "{} wire.42hx.com".format(x[0][:-1] + '2') for x in downloadResult[:2] ]
+resolve = [ "{} {}".format(x[0][:-1] + '2', YourHost) for x in downloadResult[:2] ]
 txt = '\n'.join(resolve)
 st = subprocess.getstatusoutput(r"""echo '{}' | sudo tee -a /etc/hosts""".format(txt))
 logging.info("add new %s host %r", txt, st)
